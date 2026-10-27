@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía de GitHub — Comandos Esenciales</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --bg2: #f5f5f4;
+    --bg3: #eeeeec;
+    --text: #1a1a18;
+    --text2: #5f5e5a;
+    --text3: #625f5a;
+    --border: rgba(0,0,0,0.12);
+    --border2: rgba(0,0,0,0.22);
+    --info-bg: #e6f1fb;
+    --info-text: #185fa5;
+    --success-bg: #eaf3de;
+    --success-text: #3b6d11;
+    --warn-bg: #faeeda;
+    --warn-text: #854f0b;
+    --danger-bg: #fcebeb;
+    --danger-text: #a32d2d;
+    --mono: 'Courier New', monospace;
+    --sans: system-ui, -apple-system, sans-serif;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a;
+      --bg2: #252523;
+      --bg3: #2e2e2c;
+      --text: #f0ede8;
+      --text2: #a8a69f;
+      --text3: #a09e97;
+      --border: rgba(255,255,255,0.1);
+      --border2: rgba(255,255,255,0.2);
+      --info-bg: #0c2a42;
+      --info-text: #85b7eb;
+      --success-bg: #173404;
+      --success-text: #97c459;
+      --warn-bg: #2a1a04;
+      --warn-text: #ef9f27;
+      --danger-bg: #2a0f0f;
+      --danger-text: #f09595;
+    }
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg3);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  .container { max-width: 780px; margin: 0 auto; }
+
+  .top-bar {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 1.5rem; flex-wrap: wrap;
+  }
+
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 20px; font-weight: 600; color: var(--text);
+  }
+
+  .brand-icon {
+    width: 32px; height: 32px;
+    background: var(--text);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .brand-icon svg { fill: var(--bg); }
+
+  .search-wrap { flex: 1; min-width: 200px; }
+  .search-wrap input {
+    width: 100%; padding: 8px 14px;
+    font-size: 14px; font-family: var(--sans);
+    background: var(--bg);
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    color: var(--text);
+    outline: none;
+    transition: border-color .15s;
+  }
+  .search-wrap input:focus { border-color: var(--text3); }
+  .search-wrap input::placeholder { color: var(--text3); }
+
+  .tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  .tag {
+    font-size: 12px; padding: 5px 14px;
+    border-radius: var(--radius);
+    border: 0.5px solid var(--border2);
+    background: var(--bg2);
+    color: var(--text2);
+    cursor: pointer; transition: all .15s;
+    user-select: none;
+  }
+  .tag:hover { background: var(--bg); color: var(--text); }
+  .tag.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+  .section-card {
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--bg);
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: border-color .15s;
+  }
+  .section-card:hover { border-color: var(--border2); }
+  .section-card.hidden { display: none; }
+
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px; cursor: pointer; gap: 12px;
+    user-select: none;
+  }
+  .section-title { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+  .sec-num {
+    font-size: 11px; font-family: var(--mono);
+    padding: 2px 7px;
+    background: var(--bg2);
+    border-radius: 4px;
+    color: var(--text2);
+    border: 0.5px solid var(--border);
+  }
+  .sec-name { font-size: 15px; font-weight: 500; color: var(--text); }
+  .sec-tag {
+    font-size: 11px; padding: 2px 8px;
+    border-radius: 4px; font-weight: 500;
+  }
+  .sec-tag.init    { background: var(--info-bg);    color: var(--info-text); }
+  .sec-tag.branch  { background: var(--success-bg); color: var(--success-text); }
+  .sec-tag.sync    { background: var(--warn-bg);    color: var(--warn-text); }
+  .sec-tag.danger  { background: var(--danger-bg);  color: var(--danger-text); }
+  .sec-tag.flow    { background: var(--bg2);         color: var(--text2); border: 0.5px solid var(--border); }
+  .sec-tag.windows { background: var(--info-bg);    color: var(--info-text); }
+
+  .chevron { font-size: 13px; color: var(--text3); transition: transform .2s; }
+  .section-card.open .chevron { transform: rotate(180deg); }
+
+  .section-body {
+    display: none;
+    padding: 0 18px 16px;
+    border-top: 0.5px solid var(--border);
+  }
+  .section-card.open .section-body { display: block; }
+
+  .desc {
+    font-size: 14px; color: var(--text2);
+    margin: 12px 0 10px; line-height: 1.65;
+  }
+
+  .cmd-block {
+    background: var(--bg2);
+    border-radius: var(--radius);
+    border: 0.5px solid var(--border);
+    margin-bottom: 10px; overflow: hidden;
+  }
+  .cmd-label {
+    font-size: 11px; color: var(--text3);
+    font-family: var(--mono);
+    padding: 6px 12px 0; display: block;
+  }
+  .cmd-row {
+    display: flex; align-items: flex-start;
+    justify-content: space-between; gap: 8px;
+    padding: 6px 12px 10px;
+  }
+  .cmd-code {
+    font-family: var(--mono); font-size: 13px;
+    color: var(--text); white-space: pre; line-height: 1.6;
+    flex: 1; overflow-x: auto;
+  }
+  .copy-btn {
+    font-size: 11px; padding: 3px 10px;
+    background: transparent;
+    border: 0.5px solid var(--border2);
+    border-radius: 4px; color: var(--text2);
+    cursor: pointer; white-space: nowrap;
+    flex-shrink: 0; margin-top: 2px;
+    transition: all .15s; font-family: var(--sans);
+  }
+  .copy-btn:hover { background: var(--bg3); color: var(--text); }
+  .copy-btn.copied { color: var(--success-text); }
+
+  .table-wrap { overflow-x: auto; margin-top: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    padding: 8px 12px; text-align: left;
+    font-weight: 500; font-size: 12px;
+    color: var(--text2);
+    border-bottom: 0.5px solid var(--border);
+  }
+  td {
+    padding: 8px 12px;
+    border-bottom: 0.5px solid var(--border);
+    color: var(--text); vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  td:first-child { color: var(--text2); }
+  td code {
+    font-family: var(--mono); font-size: 12px;
+    background: var(--bg2); padding: 2px 6px;
+    border-radius: 3px; color: var(--text);
+  }
+
+  .steps-list { list-style: none; counter-reset: step; }
+  .steps-list li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 10px 0; border-bottom: 0.5px solid var(--border);
+  }
+  .steps-list li:last-child { border-bottom: none; }
+  .step-num {
+    min-width: 24px; height: 24px; border-radius: 50%;
+    background: var(--bg2);
+    border: 0.5px solid var(--border2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-family: var(--mono);
+    color: var(--text2); flex-shrink: 0; margin-top: 2px;
+  }
+  .step-content { flex: 1; }
+  .step-content p { font-size: 14px; color: var(--text2); margin-bottom: 6px; }
+
+  .no-results {
+    text-align: center; padding: 3rem 1rem;
+    color: var(--text3); font-size: 14px;
+  }
+
+  footer {
+    text-align: center; margin-top: 2rem;
+    font-size: 12px; color: var(--text3);
+  }
+  footer a { color: var(--info-text); text-decoration: underline; }
+
+  .tag { font-family: var(--sans); }
+  :focus-visible { outline: 2px solid var(--info-text); outline-offset: 2px; }
+  .sec-tag.info { background: var(--info-bg); color: var(--info-text); }
+  .sec-tag.faq  { background: var(--success-bg); color: var(--success-text); }
+  .desc strong { color: var(--text); font-weight: 600; }
+  .faq details { border-bottom: 0.5px solid var(--border); padding: 10px 0; }
+  .faq details:last-child { border-bottom: none; }
+  .faq summary { cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text); }
+  .faq details p { font-size: 14px; color: var(--text2); line-height: 1.65; margin-top: 8px; }
+  .links { list-style: none; margin-top: 10px; }
+  .links li { font-size: 14px; color: var(--text2); padding: 6px 0; line-height: 1.5; }
+  .links a { color: var(--info-text); }
+  code { font-family: var(--mono); font-size: 12px; background: var(--bg2); padding: 1px 5px; border-radius: 3px; }
+
+  @media print {
+    body { background: #fff; padding: 0; }
+    .top-bar, .tags, .copy-btn, .chevron { display: none; }
+    .section-card, .section-card.hidden { display: block; break-inside: avoid; }
+    .section-body { display: block; }
+    .cmd-code { white-space: pre-wrap; }
+  }
+
+  .flow-jump { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; background: var(--bg); color: var(--text); border: 1px solid var(--border2); padding: 13px 16px; border-radius: var(--radius-lg); text-decoration: none; }
+  .flow-jump:hover { border-color: var(--info-text); }
+  .flow-jump strong { display: block; font-size: 14px; margin-bottom: 4px; }
+  .flow-jump small { display: block; font-size: 12px; color: var(--text2); line-height: 1.5; }
+  .flow-jump .flow-jump-arrow { color: var(--info-text); font-size: 21px; flex-shrink: 0; }
+  /* Guía interactiva: flujo por equipo y situación */
+  .flow-guide { margin-top: 14px; }
+  .flow-question { font-size: 12px; font-weight: 700; color: var(--text2); margin: 16px 0 8px; }
+  .flow-device-buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .flow-device-btn, .flow-case-btn { font-family: var(--sans); cursor: pointer; color: var(--text); text-align: left; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); transition: border-color .15s, background .15s; }
+  .flow-device-btn { font-size: 14px; padding: 12px; font-weight: 600; }
+  .flow-device-btn small { display: block; font-size: 11px; font-weight: 400; color: var(--text2); margin-top: 4px; line-height: 1.5; }
+  .flow-device-btn:hover, .flow-case-btn:hover { border-color: var(--border2); }
+  .flow-device-btn[aria-pressed="true"], .flow-case-btn[aria-pressed="true"] { background: var(--info-bg); border-color: var(--info-text); }
+  .flow-device-btn[aria-pressed="true"] small { color: var(--info-text); }
+  .flow-case-buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .flow-variant-buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 8px 0 13px; }
+  .flow-variant-btn { cursor: pointer; font: inherit; text-align: left; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 11px 12px; color: var(--text); }
+  .flow-variant-btn:hover { border-color: var(--border2); }
+  .flow-variant-btn[aria-pressed="true"] { background: var(--info-bg); border-color: var(--info-text); }
+  .flow-variant-btn strong { display: block; font-size: 13px; line-height: 1.5; }
+  .flow-variant-btn small { display: block; font-size: 11px; color: var(--text2); margin-top: 3px; line-height: 1.5; }
+  .flow-extra-question { font-size: 12px; font-weight: 700; margin: 12px 0 6px; color: var(--text); }
+
+  .flow-case-btn { padding: 10px 12px; font-size: 12px; line-height: 1.5; }
+  .flow-case-btn strong { display: block; font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .flow-case-btn span { display: block; color: var(--text2); }
+  .flow-detail { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .flow-detail h3 { font-size: 17px; font-weight: 650; margin-bottom: 6px; }
+  .flow-summary { font-size: 13px; color: var(--text2); line-height: 1.7; margin-bottom: 12px; }
+  .flow-note { font-size: 12px; line-height: 1.7; padding: 10px 12px; border: 1px solid var(--border); border-left: 3px solid var(--info-text); background: var(--info-bg); color: var(--info-text); border-radius: var(--radius); margin: 10px 0; }
+  .flow-note.warning { background: var(--warn-bg); border-left-color: var(--warn-text); color: var(--warn-text); }
+  .flow-steps { list-style: none; counter-reset: flow-step; margin-top: 14px; }
+  .flow-steps > li { display: flex; gap: 10px; padding: 13px 0; border-bottom: 1px solid var(--border); }
+  .flow-steps > li:last-child { border-bottom: none; }
+  .flow-steps .flow-step-count { display: flex; justify-content: center; align-items: center; width: 25px; height: 25px; border: 1px solid var(--border2); background: var(--bg2); border-radius: 50%; font-size: 12px; flex: 0 0 25px; }
+  .flow-step-content { flex: 1; min-width: 0; }
+  .flow-step-title { font-size: 13px; font-weight: 650; line-height: 1.6; }
+  .flow-step-explain { color: var(--text2); font-size: 12px; line-height: 1.7; margin: 4px 0 8px; }
+  .flow-steps .cmd-block { margin: 6px 0 0; }
+  .flow-stage { margin-top: 13px; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; color: var(--text2); font-size: 11px; }
+  .flow-stage span { padding: 4px 7px; border-radius: 4px; background: var(--bg2); border: 1px solid var(--border); }
+  .flow-stage span:last-child { background: var(--success-bg); color: var(--success-text); }
+  .flow-stage em { font-style: normal; font-weight: 700; }
+  @media (max-width: 540px) {
+    .flow-device-buttons, .flow-case-buttons, .flow-variant-buttons { grid-template-columns: 1fr; }
+    .flow-step-count { width: 23px; height: 23px; }
+    .flow-stage { gap: 4px; }
+  }
+  @media print {
+    .flow-device-buttons, .flow-case-buttons, .flow-variant-buttons, .flow-jump { display: none; }
+    .flow-detail { display: block; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="top-bar">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg width="18" height="18" viewBox="0 0 16 16">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+      </div>
+      Guía de GitHub
+    </div>
+    <div class="search-wrap">
+      <input type="search" id="search" placeholder="Buscar comando o sección..." aria-label="Buscar comando o sección" />
+    </div>
+  </div>
+
+  <div class="tags" id="tags" role="group" aria-label="Filtrar por categoría">
+    <button type="button" class="tag active" data-filter="all" aria-pressed="true">Todos</button>
+    <button type="button" class="tag" data-filter="info" aria-pressed="false">Información</button>
+    <button type="button" class="tag" data-filter="faq" aria-pressed="false">FAQ</button>
+    <button type="button" class="tag" data-filter="init" aria-pressed="false">Configuración</button>
+    <button type="button" class="tag" data-filter="branch" aria-pressed="false">Ramas</button>
+    <button type="button" class="tag" data-filter="sync" aria-pressed="false">Sincronización</button>
+    <button type="button" class="tag" data-filter="danger" aria-pressed="false">Deshacer</button>
+    <button type="button" class="tag" data-filter="flow" aria-pressed="false">Flujo</button>
+    <button type="button" class="tag" data-filter="windows" aria-pressed="false">Windows</button>
+  </div>
+
+  <a class="flow-jump" href="#flow-guide">
+    <span><strong>¿Estoy en mi PC o en otra computadora?</strong><small>Elige tu escenario: primer proyecto, copia clonada, trabajo en equipo o cambio de PC.</small></span>
+    <span class="flow-jump-arrow" aria-hidden="true">→</span>
+  </a>
+  <div id="sections"></div>
+  <div class="no-results" id="no-results" role="status" style="display:none">No se encontraron resultados.</div>
+
+  <footer>
+    Guía generada con ❤️ &nbsp;·&nbsp; <a href="https://git-scm.com/doc" target="_blank" rel="noopener noreferrer">git-scm.com</a> y por mí yoshiro-dev
+  </footer>
+</div>
+
+<script>
+const data = [
+  {
+    num:"A1", name:"¿Qué es GitHub?", tag:"info", tagLabel:"Información",
+    text:[
+      `GitHub es una plataforma web para alojar repositorios Git en la nube, colaborar con otras personas y automatizar el trabajo alrededor del código.`,
+      `Sobre Git agrega <strong>Pull Requests</strong> (revisión de código), <strong>Issues</strong> (tareas y errores), <strong>Actions</strong> (automatizar pruebas y despliegues), <strong>Pages</strong> (sitios estáticos), <strong>Releases</strong>, <strong>Projects</strong> y <strong>Discussions</strong>.`,
+      `Tiene plan gratuito (repositorios públicos y privados) y planes de pago para equipos y empresas. Desde 2018 pertenece a Microsoft.`
+    ]
+  },
+  {
+    num:"A2", name:"Diferencias entre Git y GitHub", tag:"info", tagLabel:"Información",
+    desc:"Git es la herramienta; GitHub es un servicio que usa esa herramienta.",
+    table:{
+      codeCol:-1,
+      headers:["Aspecto","Git","GitHub"],
+      rows:[
+        ["Qué es","Sistema de control de versiones distribuido","Plataforma web que aloja repositorios Git"],
+        ["Dónde funciona","En tu computadora, sin internet","En la nube, necesita internet"],
+        ["Cómo se usa","Línea de comandos o interfaces gráficas","Sitio web, app, GitHub CLI y Git"],
+        ["Colaboración","Ramas y merges","Pull Requests, Issues, revisiones y Actions"],
+        ["Creador","Linus Torvalds (2005)","Preston-Werner, Wanstrath, Hyett y Chacon (2008)"],
+        ["Dueño","Software libre bajo licencia GPL-2.0","Microsoft"],
+        ["¿Se usa solo?","Sí, no necesita GitHub","No, trabaja sobre Git"]
+      ]
+    }
+  },
+  {
+    num:"A3", name:"Creadores y fecha de creación", tag:"info", tagLabel:"Información",
+    text:[
+      `<strong>GitHub</strong> lo fundaron Tom Preston-Werner, Chris Wanstrath, PJ Hyett y Scott Chacon. <strong>Git</strong> lo creó Linus Torvalds y desde julio de 2005 lo mantiene Junio Hamano.`
+    ],
+    table:{
+      codeCol:-1,
+      headers:["Fecha","Hecho"],
+      rows:[
+        ["3–7 abr 2005","Linus Torvalds crea Git para el kernel de Linux, tras perder la licencia gratuita de BitKeeper"],
+        ["26 jul 2005","Junio Hamano toma el mantenimiento de Git"],
+        ["21 dic 2005","Sale Git 1.0"],
+        ["1 oct 2007","Empieza el desarrollo de GitHub"],
+        ["8 feb 2008","Se funda la empresa (como Logical Awesome LLC)"],
+        ["10 abr 2008","Lanzamiento público de GitHub"],
+        ["Jun 2018","Microsoft compra GitHub por 7,500 millones de dólares en acciones"]
+      ]
+    }
+  },
+  {
+    num:"01", name:"Configuración inicial", tag:"init", tagLabel:"Configuración",
+    desc:"Lo primero que debes hacer al instalar Git. Configura tu identidad global.",
+    blocks:[
+      {label:"Nombre de usuario", code:'git config --global user.name "Tu Nombre"'},
+      {label:"Correo electrónico",  code:'git config --global user.email "tu@email.com"'}
+    ]
+  },
+  {
+    num:"02", name:"Clonar un repositorio", tag:"init", tagLabel:"Configuración",
+    desc:"Descarga una copia completa de un repositorio remoto en tu máquina. Por defecto Git crea una carpeta nueva con el nombre del repo; con un destino al final del comando eliges dónde queda.",
+    text:[
+      `<strong>Ojo:</strong> si el destino es una carpeta que ya existe, debe estar <strong>vacía</strong>. Si ya tiene archivos, mira la sección 21. Las rutas con espacios van entre comillas.`
+    ],
+    blocks:[
+      {label:"Clonar repositorio (crea una carpeta con el nombre del repo)",       code:'git clone https://github.com/usuario/repositorio.git'},
+      {label:"Clonar en una carpeta nueva con el nombre que tú quieras",           code:'git clone https://github.com/usuario/repositorio.git mi-carpeta'},
+      {label:"Clonar dentro de la carpeta en la que ya estás (debe estar vacía)",  code:'git clone https://github.com/usuario/repositorio.git .'},
+      {label:"Clonar en otra carpeta de tu PC usando la ruta completa",            code:'git clone https://github.com/usuario/repositorio.git "C:\\Users\\tu-usuario\\Documentos\\mi-proyecto"'},
+      {label:"Clonar en otra unidad (D:) sin cambiarte de unidad",                 code:'git clone https://github.com/usuario/repositorio.git "D:\\proyectos\\mi-proyecto"'},
+      {label:"Clonar solo una rama específica",                                    code:'git clone -b nombre-rama https://github.com/usuario/repositorio.git'},
+      {label:"Clonar solo el último commit (más rápido, sin historial)",           code:'git clone --depth 1 https://github.com/usuario/repositorio.git'},
+      {label:"Clonar un repo que usa submódulos",                                  code:'git clone --recurse-submodules https://github.com/usuario/repositorio.git'},
+      {label:"Clonar por SSH en vez de HTTPS",                                     code:'git clone git@github.com:usuario/repositorio.git'},
+      {label:"Entrar a la carpeta clonada",                                        code:'cd repositorio'}
+    ]
+  },
+  {
+    num:"03", name:"Estado del repositorio", tag:"flow", tagLabel:"Flujo",
+    desc:"Consulta qué archivos han cambiado, si hay cambios nuevos en GitHub y revisa el historial de commits. Ojo: git status solo compara contra la última vez que hiciste fetch, así que sin fetch no se entera de lo nuevo en GitHub.",
+    blocks:[
+      {label:"Ver archivos modificados en tu carpeta local",                  code:'git status'},
+      {label:"Ver si hay cambios nuevos en GitHub (fetch no modifica tus archivos)", code:'git fetch\ngit status'},
+      {label:"Ver qué commits están en GitHub y aún no tienes",               code:'git log HEAD..origin/nombre-rama --oneline'},
+      {label:"Historial de commits (resumido)",                               code:'git log --oneline'}
+    ]
+  },
+  {
+    num:"04", name:"Ramas (Branches)", tag:"branch", tagLabel:"Ramas",
+    desc:"Crea, cambia y elimina ramas para trabajar en paralelo sin afectar main.",
+    blocks:[
+      {label:"Ver ramas locales",                       code:'git branch'},
+      {label:"Ver ramas locales y remotas",             code:'git branch -a'},
+      {label:"Crear rama nueva",                        code:'git branch nombre-rama'},
+      {label:"Cambiar a una rama",                      code:'git switch nombre-rama'},
+      {label:"Crear y cambiar a la vez",                code:'git switch -c nombre-rama'},
+      {label:"Eliminar rama local (si ya fue mergeada)",code:'git branch -d nombre-rama'},
+      {label:"Eliminar rama local (forzado)",           code:'git branch -D nombre-rama'},
+      {label:"Eliminar rama en remoto",                 code:'git push origin --delete nombre-rama'}
+    ]
+  },
+  {
+    num:"05", name:"Guardar cambios (Add + Commit)", tag:"flow", tagLabel:"Flujo",
+    desc:"Agrega archivos al staging area y guarda un snapshot con un mensaje.",
+    blocks:[
+      {label:"Agregar un archivo específico",             code:'git add archivo.txt'},
+      {label:"Agregar todos los cambios",                 code:'git add .'},
+      {label:"Seleccionar cambios interactivamente",      code:'git add -p'},
+      {label:"Hacer commit",                             code:'git commit -m "Mensaje descriptivo del cambio"'},
+      {label:"Agregar y commitear a la vez (rastreados)", code:'git commit -am "Mensaje"'}
+    ]
+  },
+  {
+    num:"06", name:"Sincronizar con GitHub", tag:"sync", tagLabel:"Sincronización",
+    desc:"Sube y baja cambios entre tu repositorio local y el remoto en GitHub. fetch solo trae información de GitHub y no toca tus archivos ni tus ramas; pull es fetch + merge y sí modifica tu código.",
+    blocks:[
+      {label:"Subir cambios",                                                        code:'git push origin nombre-rama'},
+      {label:"Primera vez que subes una rama nueva",                                 code:'git push -u origin nombre-rama'},
+      {label:"Revisar qué hay nuevo en GitHub (NO modifica tus archivos)",           code:'git fetch'},
+      {label:"Lo mismo que el anterior, indicando el remoto (útil con varios remotos)", code:'git fetch origin'},
+      {label:"⚠️ Bajar cambios y fusionarlos (SÍ modifica tus archivos: fetch + merge)", code:'git pull origin nombre-rama'}
+    ]
+  },
+  {
+    num:"07", name:"Fusionar ramas (Merge)", tag:"branch", tagLabel:"Ramas",
+    desc:"Combina los cambios de una rama dentro de otra. Ve a la rama destino primero.",
+    blocks:[
+      {label:"Ir a main y hacer merge", code:'git checkout main\ngit merge nombre-rama'},
+      {label:"Cancelar un merge con conflictos", code:'git merge --abort'}
+    ]
+  },
+  {
+    num:"08", name:"Rebase", tag:"branch", tagLabel:"Ramas",
+    desc:"Reaplica tus commits encima de otra rama para tener un historial más limpio.",
+    blocks:[
+      {label:"Rebase sobre main", code:'git checkout mi-rama\ngit rebase main'},
+      {label:"Continuar después de resolver un conflicto", code:'git add .\ngit rebase --continue'},
+      {label:"Cancelar el rebase", code:'git rebase --abort'}
+    ]
+  },
+  {
+    num:"09", name:"Stash — guardar temporalmente", tag:"flow", tagLabel:"Flujo",
+    desc:"Guarda cambios sin commitear para poder cambiar de rama o hacer pull sin perderlos.",
+    blocks:[
+      {label:"Guardar cambios en stash",    code:'git stash'},
+      {label:"Guardar con una descripción",  code:'git stash push -m "descripción"'},
+      {label:"Aplicar el último stash sin borrarlo", code:'git stash apply'},
+      {label:"Recuperar el último stash",   code:'git stash pop'},
+      {label:"Ver todos los stashes",       code:'git stash list'},
+      {label:"Eliminar el último stash",    code:'git stash drop'}
+    ]
+  },
+  {
+    num:"10", name:"Deshacer cambios", tag:"danger", tagLabel:"Deshacer",
+    desc:"Revierte cambios en distintos estados. Algunos son irreversibles, úsalos con cuidado.",
+    table:{
+      headers:["Situación","Comando"],
+      rows:[
+        ["Deshacer cambios en un archivo (sin commitear)","git checkout -- archivo.txt"],
+        ["Sacar archivo del staging","git restore --staged archivo.txt"],
+        ["Deshacer el último commit (mantiene cambios)","git reset --soft HEAD~1"],
+        ["Deshacer el último commit (descarta cambios)","git reset --hard HEAD~1"],
+        ["Crear commit que revierte otro","git revert <hash>"],
+        ["Corregir el mensaje del último commit","git commit --amend -m \"Nuevo mensaje\""],
+        ["Ver movimientos de HEAD (recuperar commits perdidos)","git reflog"]
+      ]
+    }
+  },
+  {
+    num:"11", name:"¿Qué flujo sigo? Mi PC, otra PC o en equipo", tag:"flow", tagLabel:"Flujo",
+    desc:"Elige dónde estás trabajando y tu situación. Te mostramos los pasos en orden, qué hace cada comando y cuándo tus cambios ya están en GitHub.",
+    scenarioGuide:true
+  },
+  {
+    num:"12", name:"Comandos de emergencia", tag:"danger", tagLabel:"Deshacer",
+    desc:"Herramientas para cuando algo salió mal y necesitas investigar o recuperar.",
+    blocks:[
+      {label:"Ver qué cambió en un archivo",          code:'git diff archivo.txt'},
+      {label:"Ver quién cambió cada línea",           code:'git blame archivo.txt'},
+      {label:"Buscar en el historial por palabra",    code:'git log --all --grep="palabra clave"'},
+      {label:"Recuperar un archivo eliminado",        code:'git checkout HEAD -- archivo-eliminado.txt'}
+    ]
+  },
+  {
+    num:"13", name:"Problemas comunes en Windows", tag:"windows", tagLabel:"Windows",
+    desc:"Errores típicos al usar Git en cmd/PowerShell en Windows y cómo resolverlos.",
+    blocks:[
+      {label:"cd no cambia de unidad (C: → D:)",                    code:'cd /d "D:\\ruta\\a\\tu\\proyecto"'},
+      {label:"En PowerShell, cd sí cambia de unidad directo",       code:'cd D:\\ruta\\a\\tu\\proyecto'},
+      {label:"En cmd, cambiar de unidad sin ruta",                  code:'D:'},
+      {label:"Ver en qué carpeta estás (PowerShell)",               code:'pwd'},
+      {label:"Ver en qué carpeta estás (cmd)",                      code:'cd'},
+      {label:"Crear una carpeta y entrar a ella",                   code:'mkdir mi-proyecto\\ncd mi-proyecto'},
+      {label:"Clonar en otra unidad sin moverte de donde estás",    code:'git clone https://github.com/usuario/repositorio.git "D:\\proyectos\\mi-proyecto"'},
+      {label:"Mover un proyecto a otra unidad (copia todo, incluida la carpeta oculta .git)", code:'robocopy "C:\\Users\\tu-usuario\\mi-proyecto" "D:\\proyectos\\mi-proyecto" /E'},
+      {label:'"detected dubious ownership in repository"',          code:'git config --global --add safe.directory "D:/ruta/a/tu/proyecto"'},
+      {label:"Reconectar carpeta sin .git con el remoto",           code:'git init\ngit remote add origin https://github.com/usuario/repositorio.git\ngit fetch origin'},
+      {label:"...conservando tus archivos locales tal cual",        code:'git checkout -b master\ngit branch --set-upstream-to=origin/master master'},
+      {label:"...o descartando lo local y usando la versión remota",code:'git checkout -b master origin/master'},
+      {label:'⚠️ Force checkout — sobrescribe archivos ya rastreados sin avisar, verifica con "git status" antes', code:'git checkout -b master origin/master -f'},
+      {label:'"Author identity unknown" al hacer commit',           code:'git config --global user.name "tu-usuario-github"\ngit config --global user.email "tu-correo@ejemplo.com"'},
+      {label:'Aviso "warning: in the working copy of \'archivo\', LF will be replaced by CRLF the next time Git touches it" — sale al hacer git add . (típico en archivos generados por Flutter). NO es un error: el add sí se hizo y puedes seguir con el commit. Solo avisa que Git convertirá los saltos de línea de Linux (LF) a los de Windows (CRLF). Para que Git lo maneje solo', code:'git config --global core.autocrlf true'},
+      {label:'En equipo: crea un archivo .gitattributes en la raíz del repo con esta línea para que todos usen la misma regla', code:'* text=auto'}
+    ]
+  },
+  {
+    num:"14", name:"Remotos", tag:"sync", tagLabel:"Sincronización",
+    desc:"Un remoto es una copia de tu repositorio en otro lugar, normalmente GitHub. origin es solo el nombre por defecto.",
+    blocks:[
+      {label:"Ver remotos configurados",                          code:'git remote -v'},
+      {label:"Agregar un remoto",                                 code:'git remote add origin https://github.com/usuario/repositorio.git'},
+      {label:"Cambiar la URL (por ejemplo de HTTPS a SSH)",       code:'git remote set-url origin git@github.com:usuario/repositorio.git'},
+      {label:"Renombrar un remoto",                               code:'git remote rename origin nuevo-nombre'},
+      {label:"Quitar un remoto",                                  code:'git remote remove nuevo-nombre'},
+      {label:"Limpiar referencias de ramas borradas en GitHub",   code:'git fetch --prune'}
+    ]
+  },
+  {
+    num:"15", name:"Etiquetas (tags)", tag:"flow", tagLabel:"Flujo",
+    desc:"Marcan un punto del historial, normalmente una versión como v1.0.0.",
+    blocks:[
+      {label:"Ver etiquetas",                code:'git tag'},
+      {label:"Crear etiqueta anotada",       code:'git tag -a v1.0.0 -m "Primera versión"'},
+      {label:"Subir una etiqueta",           code:'git push origin v1.0.0'},
+      {label:"Subir todas las etiquetas",    code:'git push origin --tags'},
+      {label:"Borrar etiqueta local",        code:'git tag -d v1.0.0'}
+    ]
+  },
+  {
+    num:"16", name:"Fork y contribuir a proyectos ajenos", tag:"sync", tagLabel:"Sincronización",
+    desc:"Un fork es tu copia personal de un repositorio en GitHub. Desde ahí propones cambios con un Pull Request.",
+    steps:[
+      {label:"Haz fork del repositorio con el botón Fork en GitHub", code:null},
+      {label:"Clona tu fork",                                        code:'git clone https://github.com/tu-usuario/repositorio.git'},
+      {label:"Agrega el repositorio original como upstream",         code:'git remote add upstream https://github.com/dueno/repositorio.git'},
+      {label:"Trae lo nuevo del original",                           code:'git fetch upstream\ngit merge upstream/main'},
+      {label:"Sube tu rama a tu fork y abre el Pull Request en GitHub", code:'git push origin nombre-rama'}
+    ]
+  },
+  {
+    num:"17", name:".gitignore — archivos que Git debe ignorar", tag:"flow", tagLabel:"Flujo",
+    desc:"Evita subir dependencias, secretos y archivos generados. Si ya subiste una contraseña o token, cámbialo de inmediato: borrarlo del repositorio no basta.",
+    blocks:[
+      {label:"Ejemplo de .gitignore",                                         code:'node_modules/\n.env\n*.log\ndist/'},
+      {label:"Dejar de rastrear un archivo ya subido (sin borrarlo del disco)", code:'git rm --cached archivo.txt'}
+    ]
+  },
+  {
+    num:"18", name:"Errores frecuentes y cómo resolverlos", tag:"danger", tagLabel:"Deshacer",
+    desc:"El mensaje de error va en la etiqueta y la solución en el comando.",
+    blocks:[
+      {label:'"fatal: not a git repository"',                               code:'git init'},
+      {label:'"! [rejected] ... (fetch first)" — GitHub tiene commits que no tienes', code:'git pull --rebase origin nombre-rama\ngit push origin nombre-rama'},
+      {label:'"Your local changes would be overwritten by merge"',          code:'git stash\ngit pull origin nombre-rama\ngit stash pop'},
+      {label:'"refusing to merge unrelated histories"',                     code:'git pull origin main --allow-unrelated-histories'},
+      {label:'"Permission denied (publickey)" — prueba tu conexión SSH',    code:'ssh -T git@github.com'},
+      {label:'"Support for password authentication was removed" — usa SSH o un token personal', code:'git remote set-url origin git@github.com:usuario/repositorio.git'},
+      {label:'"HEAD detached" — conserva tu trabajo en una rama nueva',     code:'git switch -c nueva-rama'}
+    ]
+  },
+  {
+    num:"19", name:"GitHub CLI (gh)", tag:"sync", tagLabel:"Sincronización",
+    desc:"Herramienta oficial para usar GitHub desde la terminal. Se instala aparte de Git.",
+    blocks:[
+      {label:"Iniciar sesión",                          code:'gh auth login'},
+      {label:"Clonar un repositorio",                   code:'gh repo clone usuario/repositorio'},
+      {label:"Crear repositorio y subir la carpeta actual", code:'gh repo create nombre --public --source=. --push'},
+      {label:"Crear Pull Request con título del commit", code:'gh pr create --fill'},
+      {label:"Listar Pull Requests",                    code:'gh pr list'},
+      {label:"Descargar un Pull Request para probarlo", code:'gh pr checkout 123'},
+      {label:"Crear un issue",                          code:'gh issue create'}
+    ]
+  },
+  {
+    num:"20", name:"Subir un proyecto local a GitHub por primera vez", tag:"init", tagLabel:"Configuración",
+    desc:"Para crear y publicar tu primer repositorio. Si no tienes ni carpeta ni archivos, usa el Escenario A de la sección 11 y elige «No tengo nada todavía»: incluye mkdir, cd y la creación de README.md para CMD y PowerShell. ⚠️ Si GitHub ya contiene commits, consulta la sección 21.",
+    steps:[
+      {label:"Entra a la carpeta del proyecto que ya existe (en CMD)", code:'cd /d "C:\\Proyectos\\mi-proyecto"'},
+      {label:"Revisa si ya está conectado: si no imprime nada o dice que no es un repositorio, es solo local", code:'git remote -v'},
+      {label:"Inicializa Git en la carpeta",                             code:'git init'},
+      {label:"Crea .gitignore si lo necesitas (sección 17) y guarda el primer commit", code:'git add .\ngit commit -m "Primer commit"'},
+      {label:"Crea un repositorio vacío en GitHub, sin README ni .gitignore", code:null},
+      {label:"Renombra la rama a main y conéctala con GitHub",           code:'git branch -M main\ngit remote add origin https://github.com/usuario/repositorio.git'},
+      {label:"Sube el proyecto y deja main enlazada con origin",         code:'git push -u origin main'}
+    ]
+  },
+  {
+    num:"21", name:"Proyecto local desactualizado: conectarlo a un repo que ya existe", tag:"init", tagLabel:"Configuración",
+    desc:"Tu carpeta existe en tu PC, pero GitHub ya tiene el proyecto con una versión más nueva. No uses el push de la sección 20: GitHub lo rechaza porque ya tiene contenido. Antes de empezar, haz una copia de seguridad de la carpeta.",
+    text:[
+      `<strong>Caso A:</strong> lo que tienes en local ya no importa. <strong>Caso B:</strong> quieres actualizar sin perder lo que tienes en la carpeta.`
+    ],
+    blocks:[
+      {label:"Caso A — Clona en otra carpeta (copia a mano lo que quieras conservar de la vieja)", code:'git clone https://github.com/usuario/repositorio.git'},
+      {label:"Caso A — Si vaciaste la carpeta, clona directo en ella",                          code:'git clone https://github.com/usuario/repositorio.git .'}
+    ],
+    steps:[
+      {label:"Caso B — Inicializa Git en la carpeta y nombra la rama",                 code:'git init\ngit branch -M main'},
+      {label:"Conecta con GitHub",                                                     code:'git remote add origin https://github.com/usuario/repositorio.git'},
+      {label:"Descarga lo de GitHub sin tocar tus archivos",                           code:'git fetch origin'},
+      {label:"Apunta tu rama al último commit de GitHub dejando tus archivos tal cual", code:'git reset origin/main'},
+      {label:"Enlaza main con origin/main",                                            code:'git branch --set-upstream-to=origin/main main'},
+      {label:"Revisa qué es diferente entre tu carpeta y GitHub",                      code:'git status\ngit diff'},
+      {label:"Opcional: regresa un archivo a la versión de GitHub",                    code:'git restore archivo.txt'},
+      {label:"Sube lo que quieras conservar",                                          code:'git add .\ngit commit -m "Actualizo proyecto"\ngit push'}
+    ]
+  },
+  {
+    num:"FAQ", name:"Preguntas frecuentes", tag:"faq", tagLabel:"FAQ",
+    faq:[
+      {q:"¿Git y GitHub son lo mismo?", a:`No. Git controla versiones en tu computadora; GitHub es un servicio web que aloja repositorios Git. Mira la sección A2.`},
+      {q:"¿Necesito GitHub para usar Git?", a:`No. Git funciona solo y sin internet. GitHub (o GitLab, Bitbucket, Codeberg) solo sirve para respaldar y compartir.`},
+      {q:"¿GitHub es gratis?", a:`Sí, tiene plan gratuito con repositorios públicos y privados. Los planes de pago agregan funciones para equipos y empresas.`},
+      {q:"¿Quién creó GitHub y cuándo?", a:`Tom Preston-Werner, Chris Wanstrath, PJ Hyett y Scott Chacon. El desarrollo empezó el 1 de octubre de 2007 y se lanzó públicamente el 10 de abril de 2008.`},
+      {q:"¿Quién es el dueño de GitHub?", a:`Microsoft, que lo compró en 2018.`},
+      {q:"¿Puedo clonar en una carpeta que ya tiene archivos?", a:`No con <code>git clone ... .</code>, que solo funciona en carpetas vacías. Si ya tiene archivos, sigue la sección 21 (<code>git init</code> + <code>fetch</code> + <code>reset</code>) o clona en otra carpeta y copia a mano lo que quieras conservar.`},
+      {q:"¿Puedo clonar en otra unidad, como D:?", a:`Sí. Pon la ruta completa entre comillas como último argumento: <code>git clone URL "D:\\proyectos\\app"</code>. Git crea las carpetas que falten. Mira la sección 02.`},
+      {q:"¿Cuál es la diferencia entre fetch y pull?", a:`<code>git fetch</code> solo descarga información de GitHub y no toca tus archivos. <code>git pull</code> es fetch + merge y sí modifica tu código.`},
+      {q:"¿Clone o fork?", a:`Clone copia un repositorio a tu computadora. Fork crea una copia en tu cuenta de GitHub para proponer cambios a un proyecto ajeno.`},
+      {q:"¿Merge o rebase?", a:`Merge conserva el historial y crea un commit de unión. Rebase reescribe tus commits encima de otra rama para un historial lineal; no lo uses en ramas que otras personas ya descargaron.`},
+      {q:"¿Qué es origin?", a:`El nombre por defecto del remoto del que clonaste. Es solo un alias y se puede cambiar.`},
+      {q:"¿main o master?", a:`Los repositorios nuevos en GitHub usan <code>main</code> desde octubre de 2020. Para que Git también lo use: <code>git config --global init.defaultBranch main</code>.`},
+      {q:"¿Subí un token o contraseña por error?", a:`Revócalo o cámbialo de inmediato; borrar el commit no basta porque pudo haberse copiado. Después agrégalo a <code>.gitignore</code>.`},
+      {q:"¿HTTPS o SSH?", a:`HTTPS es más simple de empezar, pero pide token. SSH usa una llave y no te pide credenciales en cada push.`},
+      {q:"¿Por qué mis commits no aparecen en mi perfil?", a:`El correo de <code>user.email</code> debe estar asociado a tu cuenta de GitHub.`},
+      {q:"¿Hay límite de tamaño de archivo?", a:`GitHub bloquea archivos de más de 100 MB. Para archivos grandes usa Git LFS.`},
+      {q:"¿Qué alternativas a GitHub existen?", a:`GitLab, Bitbucket y Codeberg, entre otras. Todas usan Git por debajo.`}
+    ]
+  },
+  {
+    num:"REF", name:"Recursos oficiales", tag:"info", tagLabel:"Información",
+    links:[
+      {text:"Documentación de Git", url:"https://git-scm.com/doc", desc:"manual de referencia y videos"},
+      {text:"Pro Git en español", url:"https://git-scm.com/book/es/v2", desc:"libro oficial y gratuito"},
+      {text:"Documentación de GitHub", url:"https://docs.github.com/es", desc:"guías oficiales de la plataforma"},
+      {text:"GitHub Skills", url:"https://skills.github.com", desc:"cursos prácticos interactivos"},
+      {text:"GitHub CLI", url:"https://cli.github.com", desc:"descarga y manual de gh"},
+      {text:"Conventional Commits", url:"https://www.conventionalcommits.org/es/v1.0.0/", desc:"convención para mensajes de commit"}
+    ]
+  }
+];
+
+const esc = t => String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+function copyCode(btn) {
+  navigator.clipboard.writeText(btn.dataset.code).then(() => {
+    btn.textContent = "copiado ✓";
+    btn.classList.add("copied");
+    setTimeout(() => { btn.textContent = "copiar"; btn.classList.remove("copied"); }, 1500);
+  });
+}
+
+function renderBlock(b) {
+  return `<div class="cmd-block">
+    ${b.label ? `<span class="cmd-label">${b.label}</span>` : ''}
+    <div class="cmd-row">
+      <pre class="cmd-code">${esc(b.code)}</pre>
+      <button type="button" class="copy-btn" data-code="${esc(b.code)}" aria-label="Copiar comando">copiar</button>
+    </div>
+  </div>`;
+}
+
+
+// Escenarios pedagógicos. "Mi PC" y "otra PC" son elecciones de contexto,
+// y dentro de cada una elegimos la operación concreta.
+const flowCases = {
+  habitual: [
+    {
+      id: 'primer', short: 'A. Mi primer proyecto', sub: 'Desde cero o con archivos existentes',
+      title: 'Escenario A · Mi primer proyecto',
+      intro: '¿No tienes ni una carpeta? ¿O ya tienes archivos pero todavía no los has subido a GitHub? Elige tu punto de partida y sigue la ruta correspondiente.',
+      note: 'Ambas rutas terminan en un repositorio NUEVO y VACÍO de GitHub. Si el repositorio remoto ya tiene contenido o ya clonaste tu proyecto, consulta los escenarios B o E y la sección 21.',
+      variants: [
+        {
+          id: 'cero', short: 'No tengo nada todavía', sub: 'Ni carpeta ni archivos: empezar de cero',
+          intro: 'Vamos a crear una carpeta, entrar en ella, generar nuestro primer archivo, inicializar Git y publicar todo en GitHub. Solo necesitas Git instalado, Windows y una cuenta de GitHub.',
+          steps: [
+            {title: 'Comprueba que Git esté instalado', why: 'Abre CMD o PowerShell y ejecuta este comando. Si Windows indica que no reconoce git, instala Git para Windows primero; consulta la sección 01 para configurar tu nombre y correo.', code: 'git --version'},
+            {title: 'Ve a un lugar donde guardarás tu proyecto', why: 'Usaremos la carpeta personal de Windows, que ya existe. Para guardarlo en otra ubicación, cambia la ruta. CMD usa %USERPROFILE% y PowerShell usa $HOME.', codeCmd: 'cd /d "%USERPROFILE%"', codePowerShell: 'Set-Location $HOME'},
+            {title: 'Crea la carpeta del proyecto y entra en ella', why: 'mkdir crea una carpeta llamada mi-proyecto; cd entra a esa carpeta. Puedes sustituir mi-proyecto por el nombre de tu app. Los dos comandos funcionan tanto en CMD como en PowerShell.', code: 'mkdir mi-proyecto\ncd mi-proyecto'},
+            {title: 'Inicializa Git dentro de la nueva carpeta', why: 'git init crea la carpeta oculta .git y establece la rama main. Todavía no existe ningún commit ni tienes conexión con GitHub.', code: 'git init -b main'},
+            {title: 'Crea tu primer archivo README.md', why: 'Este comando abre el Bloc de notas. Si pregunta si deseas crear el archivo, acepta. Escribe, por ejemplo, "Mi primer proyecto en Git", presiona Ctrl+S y cierra el editor. Un repositorio sin archivos no puede generar un primer commit normal.', code: 'notepad README.md'},
+            {title: 'Comprueba y prepara el archivo', why: 'git status te mostrará README.md como archivo nuevo; git add lo envía al área de preparación (staging). Si más adelante agregas otros archivos, puedes usar git add .', code: 'git status\ngit add README.md'},
+            {title: 'Guarda el primer commit en esta PC', why: 'git commit registra una primera versión de README.md de forma local. Si aparece Author identity unknown, configura user.name y user.email como en la sección 01.', code: 'git commit -m "Primer commit"'},
+            {title: 'Crea un repositorio vacío en GitHub', why: 'En github.com, selecciona New repository, escribe su nombre y elige público o privado. NO marques README, .gitignore ni licencia; ya creaste tu propio README local. Copia la URL HTTPS del nuevo repositorio.', code: null},
+            {title: 'Conecta el repositorio local y publícalo', why: 'Reemplaza usuario/repositorio por tu URL real de GitHub. origin es el nombre del remoto y -u configura la rama de seguimiento para los siguientes push.', code: 'git remote add origin https://github.com/usuario/repositorio.git\ngit push -u origin main'},
+            {title: 'Verifica que se haya publicado', why: 'git status debería mostrar una rama sincronizada y el directorio limpio. En GitHub actualiza la página: el archivo README.md ya debe aparecer.', code: 'git status'}
+          ],
+          ending: '¡Listo! Empezaste sin ningún archivo y ya tienes una carpeta local, un commit y un repositorio en GitHub. La próxima vez utiliza el escenario B.'
+        },
+        {
+          id: 'archivos', short: 'Ya tengo mis archivos', sub: 'Existe la carpeta, pero aún no he usado Git',
+          intro: 'Tus archivos ya están guardados en una carpeta de Windows. No necesitas crear otra: entra a esa carpeta y conecta el proyecto con GitHub.',
+          steps: [
+            {title: 'Entra a la carpeta del proyecto', why: 'Sustituye C:\\Proyectos\\mi-proyecto por tu ruta verdadera. En CMD, cd /d también cambia de unidad; PowerShell usa Set-Location (o cd).', codeCmd: 'cd /d "C:\\Proyectos\\mi-proyecto"', codePowerShell: 'Set-Location "C:\\Proyectos\\mi-proyecto"'},
+            {title: 'Inicializa Git y prepara tus archivos', why: 'Si hay archivos privados, contraseñas o dependencias, crea primero un .gitignore (sección 17). Después revisa y prepara lo que quieras guardar.', code: 'git init -b main\ngit status\ngit add .'},
+            {title: 'Guarda el primer commit', why: 'Este commit solo existe en tu PC hasta que hagas push.', code: 'git commit -m "Primer commit"'},
+            {title: 'Crea un repositorio VACÍO en github.com', why: 'En GitHub selecciona New repository y NO agregues README, .gitignore ni licencia inicial. Copia la URL HTTPS del repositorio.', code: null},
+            {title: 'Conecta Git con GitHub y publica', why: 'Reemplaza usuario/repositorio por tu URL real. -u enlaza main con origin/main para facilitar los siguientes push y pull.', code: 'git remote add origin https://github.com/usuario/repositorio.git\ngit push -u origin main'}
+          ],
+          ending: 'Ya publicaste tus archivos existentes. Si quieres continuar trabajando en tu PC, utiliza el escenario B; en otra computadora, el E.'
+        }
+      ]
+    },
+    {
+      id: 'clonado', short: 'B. Ya lo tengo clonado', sub: 'Mi trabajo cotidiano',
+      title: 'Escenario B · Ya tengo un proyecto clonado en mi PC',
+      intro: 'Tu proyecto ya está conectado con GitHub y quieres seguir editándolo en tu computadora habitual. Para proyectos personales donde trabajas directamente en main.',
+      note: 'Comprueba que no tienes cambios locales pendientes antes de cambiar de rama o actualizar. En proyectos en equipo, utiliza el escenario C y una rama de trabajo.',
+      steps: [
+        {title: 'Entra al repositorio y revisa su estado', why: 'Confirma que estás en la carpeta correcta y que no hay cambios sin guardar.', code: 'cd "C:\\Proyectos\\mi-proyecto"\ngit status'},
+        {title: 'Actualiza main con lo publicado', why: 'Solo con el directorio limpio: cambia a main y descarga commits nuevos. --ff-only evita crear una fusión inesperada.', code: 'git switch main\ngit pull --ff-only origin main'},
+        {title: 'Edita tus archivos', why: 'Haz cambios en tu editor, guarda y revisa qué archivos modificaste.', code: 'git status'},
+        {title: 'Prepara y registra una versión', why: 'add selecciona cambios; commit los guarda SOLO en tu computadora.', code: 'git add .\ngit commit -m "Actualizo funcionalidad"'},
+        {title: 'Publica los commits', why: 'push envía tus commits a GitHub. Si alguien publicó antes que tú, primero integra los cambios remotos.', code: 'git push origin main'}
+      ],
+      ending: 'Después de hacer push, otra PC podrá descargar esta versión. Antes de push, los commits solo están en tu PC.'
+    },
+    {
+      id: 'equipo', short: 'C. Trabajo en equipo', sub: 'Ramas y Pull Request',
+      title: 'Escenario C · Trabajo en equipo con ramas',
+      intro: 'Quieres desarrollar una característica sin alterar main directamente y proponerla al resto del equipo mediante un Pull Request.',
+      note: 'Este flujo asume que ya clonaste el repositorio y tienes permiso para publicar ramas. Si trabajas desde un fork sin permisos de escritura, consulta la sección 16.',
+      steps: [
+        {title: 'Verifica que tu proyecto esté limpio', why: 'Guarda o aparta primero cualquier cambio pendiente.', code: 'git status'},
+        {title: 'Actualiza tu rama principal', why: 'Empieza tu funcionalidad a partir de la última main disponible.', code: 'git switch main\ngit pull --ff-only origin main'},
+        {title: 'Crea una rama para tu tarea', why: 'Trabajarás sin modificar main directamente.', code: 'git switch -c feature/mi-mejora'},
+        {title: 'Desarrolla y registra cambios', why: 'Modifica archivos en tu editor. Después prepara los cambios y guarda un commit local.', code: 'git status\ngit add .\ngit commit -m "feat: agrego mi mejora"'},
+        {title: 'Publica tu rama', why: 'La rama y tus commits aparecerán en GitHub, separados de main.', code: 'git push -u origin feature/mi-mejora'},
+        {title: 'Abre un Pull Request en GitHub', why: 'En el repositorio, usa Compare & pull request; selecciona base main, pide revisión y fusiona cuando sea aprobado.', code: null},
+        {title: 'Actualiza main tras la fusión', why: 'Regresa a la rama principal y descarga el resultado. Si la rama fue fusionada, puedes eliminarla localmente.', code: 'git switch main\ngit pull --ff-only origin main\ngit branch -d feature/mi-mejora'}
+      ],
+      ending: 'Un Pull Request no equivale a un push: primero publicas tu rama y luego solicitas que se integre en main.'
+    },
+    {
+      id: 'regreso', short: 'D. Regresé a mi PC', sub: 'Antes trabajé en otra computadora',
+      title: 'Escenario D · Regresé a mi PC habitual',
+      intro: 'Trabajaste en otra computadora e hiciste push a GitHub. Ahora estás otra vez frente a tu PC original y quieres continuar con esos cambios.',
+      note: 'Si en la otra PC solo hiciste commit y NO push, esos commits no están disponibles en GitHub. Primero publícalos desde aquella PC o transfiere los archivos por otro medio.',
+      steps: [
+        {title: 'Abre el proyecto original', why: 'No necesitas volver a clonar: el repositorio ya existe en tu PC.', code: 'cd "C:\\Proyectos\\mi-proyecto"\ngit status'},
+        {title: 'Selecciona la rama y consulta GitHub', why: 'Con tu directorio limpio, cambia a main. fetch consulta lo nuevo sin modificar tus archivos de trabajo.', code: 'git switch main\ngit fetch origin\ngit log --oneline HEAD..origin/main'},
+        {title: 'Integra los cambios que hiciste en la otra PC', why: 'Actualiza la rama local con los commits que publicaste previamente.', code: 'git pull --ff-only origin main'},
+        {title: 'Continúa trabajando con normalidad', why: 'Edita, guarda y publica. Así la otra computadora también podrá actualizarse después.', code: 'git add .\ngit commit -m "Continúo en mi PC"\ngit push origin main'}
+      ],
+      ending: 'Regla: la PC 1 hace push → GitHub almacena los commits → la PC 2 hace pull. Para volver, haces lo mismo en sentido inverso.'
+    }
+  ],
+  otra: [
+    {
+      id: 'sin-clon', short: 'E. No tengo el proyecto', sub: 'Primera vez en esta PC',
+      title: 'Escenario E · Estoy en otra PC y todavía NO tengo el proyecto',
+      intro: 'Quieres continuar un proyecto que ya publicaste desde tu PC habitual. En esta nueva computadora aún no existe ninguna carpeta clonada del repositorio.',
+      note: 'Antes de cambiar de PC, confirma que hiciste git push desde la primera. GitHub no conoce los commits ni archivos que únicamente dejaste guardados en la otra computadora.',
+      steps: [
+        {title: 'Instala Git y configura tu identidad', why: 'Esto se configura por computadora. Verifica Git y usa tu nombre/correo reales vinculados a GitHub.', code: 'git --version\ngit config --global user.name "Tu Nombre"\ngit config --global user.email "tu@email.com"'},
+        {title: 'Clona el repositorio desde GitHub', why: 'Abre una terminal dentro de la carpeta donde guardarás tus proyectos y reemplaza la URL por la tuya. No hace falta crear manualmente la carpeta del proyecto: git clone la crea por ti.', code: 'git clone https://github.com/usuario/repositorio.git'},
+        {title: 'Entra al proyecto', why: 'La copia incluye los commits publicados y la configuración del remoto origin.', code: 'cd repositorio\ngit status'},
+        {title: 'Edita y guarda tus cambios', why: 'Modifica los archivos. Tu commit todavía estará solo en esta PC.', code: 'git add .\ngit commit -m "Trabajo desde otra PC"'},
+        {title: 'Envía tus cambios a GitHub', why: 'Autentícate si Git lo solicita; en repositorios privados necesitas una cuenta con acceso.', code: 'git push origin main'}
+      ],
+      ending: 'Ahora puedes regresar a tu PC original y hacer pull para recuperar estos nuevos commits.'
+    },
+    {
+      id: 'ya-clon', short: 'F. Ya lo cloné aquí', sub: 'Solo necesito actualizarlo',
+      title: 'Escenario F · Estoy en otra PC y el proyecto YA está clonado',
+      intro: 'Habías trabajado anteriormente en esta segunda PC. No debes clonar de nuevo; basta con actualizar la copia que ya existe.',
+      note: 'Estos pasos son para trabajo individual sobre main. Si usas una rama distinta, sustituye main por esa rama o sigue el escenario C.',
+      steps: [
+        {title: 'Entra a la carpeta que ya tenías', why: 'Asegúrate de no crear una segunda copia innecesaria.', code: 'cd "C:\\Proyectos\\mi-proyecto"\ngit status'},
+        {title: 'Consulta los cambios remotos', why: 'Con el directorio limpio, cambia a main. fetch actualiza la referencia origin/main, pero todavía no modifica tus archivos.', code: 'git switch main\ngit fetch origin\ngit log --oneline HEAD..origin/main'},
+        {title: 'Actualiza los archivos de esta PC', why: 'Ahora sí integra los commits remotos con tu rama local.', code: 'git pull --ff-only origin main'},
+        {title: 'Edita y guarda una nueva versión', why: 'Haz tus cambios en el editor y registra el commit.', code: 'git add .\ngit commit -m "Actualizo desde segunda PC"'},
+        {title: 'Sube los cambios para acceder desde tu otra PC', why: 'Después podrás hacer pull en tu computadora habitual.', code: 'git push origin main'}
+      ],
+      ending: 'El mismo repositorio puede estar clonado en varias computadoras. push y pull coordinan las versiones publicadas.'
+    },
+    {
+      id: 'sin-push', short: 'G. No hice push', sub: 'Mis cambios no aparecen',
+      title: 'Escenario G · Mis cambios no aparecen en esta PC',
+      intro: 'En tu primera PC modificaste archivos o hiciste commit, pero no los publicaste. En esta nueva PC haces pull y no aparece tu trabajo.',
+      note: 'Importante: GitHub NO sincroniza automáticamente las carpetas locales. Si no hiciste push, ni clone ni pull recuperarán esos cambios.',
+      steps: [
+        {title: 'Regresa a la computadora que contiene los cambios', why: 'Si aún tienes los archivos ahí, entra al repositorio y revisa su estado. Este comando se ejecuta en la PC original.', code: 'git status'},
+        {title: 'Guarda cualquier cambio todavía sin commit', why: 'Si ya tienes commits preparados, no hace falta crearlos de nuevo. Estos comandos se ejecutan en la PC original solo cuando existen cambios pendientes.', code: 'git add .\ngit commit -m "Guardo cambios pendientes"'},
+        {title: 'Publica desde la PC original', why: 'Revisa primero la rama actual. Si el push es rechazado porque hay cambios remotos, integra esos cambios antes de reintentar.', code: 'git branch --show-current\ngit push origin main'},
+        {title: 'Vuelve a esta nueva PC y actualízala', why: 'En la carpeta del repositorio clonado, trae los commits publicados. Si aún no tienes el proyecto, utiliza el escenario E.', code: 'git switch main\ngit pull --ff-only origin main'}
+      ],
+      ending: 'Si no puedes acceder a la PC original y los cambios nunca se publicaron ni se respaldaron, GitHub no puede recuperarlos.'
+    }
+  ]
+};
+
+let activeFlowLocation = 'habitual';
+let activeFlowId = 'primer';
+let activeStartVariant = 'cero';
+
+function renderScenarioGuide() {
+  return `<div class="flow-guide">
+    <p class="flow-question">1. ¿En qué computadora estás?</p>
+    <div class="flow-device-buttons" role="group" aria-label="Computadora en la que estás trabajando">
+      <button type="button" class="flow-device-btn" data-flow-location="habitual" aria-pressed="true">Estoy en mi PC habitual<small>Donde normalmente desarrollo mis proyectos</small></button>
+      <button type="button" class="flow-device-btn" data-flow-location="otra" aria-pressed="false">Estoy en otra PC<small>Otra laptop, computadora de la escuela o del trabajo</small></button>
+    </div>
+    <p class="flow-question">2. ¿Qué quieres hacer?</p>
+    <div class="flow-case-buttons" id="flow-case-buttons" role="group" aria-label="Elegir escenario"></div>
+    <div class="flow-detail" id="flow-detail" aria-live="polite"></div>
+    <div class="flow-stage" aria-label="Etapas de publicación de cambios">
+      <span>Archivos modificados</span><em>→</em><span>git add</span><em>→</em><span>git commit (local)</span><em>→</em><span>git push (GitHub)</span>
+    </div>
+  </div>`;
+}
+
+function renderFlowSelection() {
+  const choices = flowCases[activeFlowLocation];
+  if (!choices.some(c => c.id === activeFlowId)) activeFlowId = choices[0].id;
+  const current = choices.find(c => c.id === activeFlowId);
+  document.querySelectorAll('.flow-device-btn').forEach(btn =>
+    btn.setAttribute('aria-pressed', String(btn.dataset.flowLocation === activeFlowLocation)));
+  const options = document.getElementById('flow-case-buttons');
+  if (!options) return;
+  options.innerHTML = choices.map(c => `<button type="button" class="flow-case-btn" data-flow-case="${esc(c.id)}" aria-pressed="${c.id === activeFlowId}"><strong>${esc(c.short)}</strong><span>${esc(c.sub)}</span></button>`).join('');
+  const detail = document.getElementById('flow-detail');
+  const variant = current.variants ? current.variants.find(v => v.id === activeStartVariant) || current.variants[0] : null;
+  const active = variant || current;
+  const variantSelector = current.variants ? `<p class="flow-extra-question">3. ¿Desde dónde empiezas?</p>
+    <div class="flow-variant-buttons" role="group" aria-label="Estado inicial de tu proyecto">
+    ${current.variants.map(v => `<button type="button" class="flow-variant-btn" data-flow-variant="${esc(v.id)}" aria-pressed="${v.id === active.id}">
+       <strong>${esc(v.short)}</strong><small>${esc(v.sub)}</small></button>`).join('')}
+    </div>` : '';
+  detail.innerHTML = `<h3>${esc(current.title)}</h3><p class="flow-summary">${esc(current.intro)}</p>
+    <div class="flow-note ${current.id === 'sin-push' || current.id === 'regreso' ? 'warning' : ''}">${esc(current.note)}</div>
+    ${variantSelector}
+    ${variant ? `<p class="flow-summary">${esc(variant.intro)}</p>` : ''}
+    <ol class="flow-steps">${active.steps.map((st,i) => `<li>
+       <span class="flow-step-count" aria-hidden="true">${i+1}</span>
+       <div class="flow-step-content"><div class="flow-step-title">${esc(st.title)}</div>
+       <p class="flow-step-explain">${esc(st.why)}</p>
+       ${st.codeCmd ? renderBlock({label:'CMD', code:st.codeCmd}) : ''}
+       ${st.codePowerShell ? renderBlock({label:'PowerShell', code:st.codePowerShell}) : ''}
+       ${st.code ? renderBlock({code:st.code}) : ''}</div>
+    </li>`).join('')}</ol>
+    <div class="flow-note">${esc(active.ending)}</div>`;
+}
+
+function renderSection(s) {
+  let body = s.desc ? `<p class="desc">${s.desc}</p>` : '';
+  if (s.text) body += s.text.map(t => `<p class="desc">${t}</p>`).join('');
+  if (s.scenarioGuide) body += renderScenarioGuide();
+  if (s.blocks) body += s.blocks.map(renderBlock).join('');
+  if (s.table) {
+    const cc = s.table.codeCol ?? 1;
+    body += `<div class="table-wrap"><table>
+      <tr>${s.table.headers.map(h=>`<th scope="col">${h}</th>`).join('')}</tr>
+      ${s.table.rows.map(r=>`<tr>${r.map((c,i)=>`<td>${i===cc?`<code>${esc(c)}</code>`:c}</td>`).join('')}</tr>`).join('')}
+    </table></div>`;
+  }
+  if (s.steps) {
+    body += `<ol class="steps-list">` + s.steps.map((st,i)=>`
+      <li>
+        <div class="step-num">${i+1}</div>
+        <div class="step-content">
+          <p>${st.label}</p>
+          ${st.code ? renderBlock({code:st.code}) : ''}
+        </div>
+      </li>`).join('') + `</ol>`;
+  }
+  if (s.faq) body += `<div class="faq">${s.faq.map(f=>`<details><summary>${f.q}</summary><p>${f.a}</p></details>`).join('')}</div>`;
+  if (s.links) body += `<ul class="links">${s.links.map(l=>`<li><a href="${l.url}" target="_blank" rel="noopener noreferrer">${l.text}</a> — ${l.desc}</li>`).join('')}</ul>`;
+  return `<div class="section-card" ${s.scenarioGuide ? 'id="flow-guide"' : ''} data-tag="${s.tag}" data-name="${s.name.toLowerCase()}" data-num="${s.num.toLowerCase()}">
+    <div class="section-header" role="button" tabindex="0" aria-expanded="false">
+      <div class="section-title">
+        <span class="sec-num">${s.num}</span>
+        <span class="sec-name">${s.name}</span>
+        <span class="sec-tag ${s.tag}">${s.tagLabel}</span>
+      </div>
+      <span class="chevron" aria-hidden="true">▾</span>
+    </div>
+    <div class="section-body">${body}</div>
+  </div>`;
+}
+
+const sectionsEl = document.getElementById('sections');
+sectionsEl.innerHTML = data.map(renderSection).join('');
+renderFlowSelection();
+// Abrimos el módulo de flujo por defecto para que la elección sea visible.
+const flowCard = sectionsEl.querySelector('[data-num="11"]');
+flowCard.classList.add('open');
+flowCard.querySelector('.section-header').setAttribute('aria-expanded', 'true');
+
+function toggleCard(header) {
+  header.setAttribute('aria-expanded', header.parentElement.classList.toggle('open'));
+}
+
+sectionsEl.addEventListener('click', e => {
+  const copy = e.target.closest('.copy-btn');
+  if (copy) { copyCode(copy); return; }
+  const location = e.target.closest('.flow-device-btn');
+  if (location) { activeFlowLocation = location.dataset.flowLocation; renderFlowSelection(); return; }
+  const choice = e.target.closest('.flow-case-btn');
+  if (choice) { activeFlowId = choice.dataset.flowCase; renderFlowSelection(); return; }
+  const startingPoint = e.target.closest('.flow-variant-btn');
+  if (startingPoint) { activeStartVariant = startingPoint.dataset.flowVariant; renderFlowSelection(); return; }
+  const header = e.target.closest('.section-header');
+  if (header) toggleCard(header);
+});
+
+sectionsEl.addEventListener('keydown', e => {
+  const header = e.target.closest('.section-header');
+  if (header && e.target === header && (e.key === 'Enter' || e.key === ' ')) {
+    e.preventDefault();
+    toggleCard(header);
+  }
+});
+
+let activeFilter = 'all';
+
+document.getElementById('tags').addEventListener('click', e => {
+  const tag = e.target.closest('.tag');
+  if (!tag) return;
+  activeFilter = tag.dataset.filter;
+  document.querySelectorAll('.tag').forEach(t => {
+    const on = t.dataset.filter === activeFilter;
+    t.classList.toggle('active', on);
+    t.setAttribute('aria-pressed', on);
+  });
+  applyFilters();
+});
+
+document.getElementById('search').addEventListener('input', applyFilters);
+
+function applyFilters() {
+  const q = document.getElementById('search').value.toLowerCase();
+  let visible = 0;
+  document.querySelectorAll('.section-card').forEach(card => {
+    const matchTag = activeFilter === 'all' || card.dataset.tag === activeFilter;
+    const matchQ = !q || card.dataset.name.includes(q) || card.dataset.num.includes(q) ||
+      card.querySelector('.section-body').textContent.toLowerCase().includes(q);
+    const show = matchTag && matchQ;
+    card.classList.toggle('hidden', !show);
+    if (show) visible++;
+    if (q && show) {
+      card.classList.add('open');
+      card.querySelector('.section-header').setAttribute('aria-expanded', 'true');
+    }
+  });
+  document.getElementById('no-results').style.display = visible === 0 ? 'block' : 'none';
+}
+</script>
+</body>
+</html>
